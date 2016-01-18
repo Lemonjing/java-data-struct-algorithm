@@ -1,5 +1,6 @@
 # java-data-struct-algorithm
-Java数据结构和算法系列文章，源码
+
+Java数据结构和算法系列文章，源码。
 
 - 数据结构
 	- 基本概念
