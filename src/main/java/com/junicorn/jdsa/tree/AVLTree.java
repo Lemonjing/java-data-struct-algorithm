@@ -29,7 +29,7 @@ public class AVLTree<T  extends Comparable<T>> {
      * 取得根结点
      * @return
      */
-    private AVLTree<T> getRoot() {
+    public AVLTree<T> getRoot() {
         if (data == null) {
             return null;
         }
@@ -89,7 +89,7 @@ public class AVLTree<T  extends Comparable<T>> {
     }
 
     private AVLTree<T> rootInsert(T t) {
-        int cp = t.compareTo(this.data);
+        int cp = t.compareTo(data);
 
         // 比较结果为0，更新元素
         if (cp == 0) {
@@ -106,7 +106,7 @@ public class AVLTree<T  extends Comparable<T>> {
             }
         } else {
             if (rightChild == null) {
-                rightChild = new AVLTree<T>();
+                rightChild = new AVLTree<T>(t);
                 rightChild.parent = this;
             } else {
                 rightChild.rootInsert(t);
@@ -224,12 +224,98 @@ public class AVLTree<T  extends Comparable<T>> {
         return root;
     }
 
-    public static  void inOrderTraverse(AVLTree  t) {
+    /**
+     * 打印整个树
+     */
+    public void display() {
+        this.getRoot().displayHolder();
+    }
 
+    /**
+     * 递归打印
+     */
+    private void displayHolder(){
+        //空节点、叶子节点不打印
+        if(data==null)
+            return;
+        System.out.println("树信息：");
+        System.out.println(String.format("H=%2d, %s->(%s,%s)",
+                height,
+                data.toString(),
+                leftChild == null ? null : leftChild.data.toString(),
+                rightChild == null ? null : rightChild.data.toString()));
+        if(leftChild!=null)
+            leftChild.displayHolder();
+        if(rightChild!=null)
+            rightChild.displayHolder();
+    }
+
+    /**
+     * 先序遍历
+     * @param t 根结点
+     */
+    private void preOrderTraverse(AVLTree t) {
+        if (t != null) {
+            System.out.println(t.data);
+            preOrderTraverse(t.leftChild);
+            preOrderTraverse(t.rightChild);
+        }
+    }
+    /**
+     * 中序遍历 从大到小打印
+     * @param t 根结点
+     */
+    private void inOrderTraverse(AVLTree t) {
         if (t != null) {
             inOrderTraverse(t.leftChild);
-            System.out.println(t.data + " ");
+            System.out.println(t.data);
             inOrderTraverse(t.rightChild);
         }
     }
+
+    /**
+     * 后序遍历
+     * @param t 根结点
+     */
+    private void postOrderTraverse(AVLTree t) {
+        if (t != null) {
+            postOrderTraverse(t.leftChild);
+            postOrderTraverse(t.rightChild);
+            System.out.println(t.data);
+        }
+    }
+
+    /**
+     * 遍历方法
+     * @param t 任意结点
+     * @param mode 模式
+     */
+    public void traverse (AVLTree t, String mode) {
+        AVLTree root = t.getRoot();
+        if (mode.equals("pre")) {
+            System.out.println("先序遍历：");
+            preOrderTraverse(root);
+        } else if (mode.equals("in")) {
+            System.out.println("中序遍历：");
+            inOrderTraverse(root);
+        } else {
+            System.out.println("后序遍历：");
+            postOrderTraverse(root);
+        }
+    }
+
+    public AVLTree<T> rootFind(T t) {
+        if (t != null && data != null) {
+            int cp = t.compareTo(data);
+            if (cp == 0)
+                return this;
+            if (cp > 0) {
+                return rightChild == null ? null : rightChild.rootFind(t);
+            }
+            return leftChild == null ? null : leftChild.rootFind(t);
+        }
+
+        return null;
+    }
+
 }
