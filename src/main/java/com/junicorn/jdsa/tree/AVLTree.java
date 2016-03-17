@@ -1,14 +1,16 @@
 package com.junicorn.jdsa.tree;
 
+import java.util.List;
+
 /**
  * Created by 哓哓 on 2016/3/16 0016.
  */
 public class AVLTree<T  extends Comparable<T>> {
 
     private T data;
-    private AVLTree parent;
-    private AVLTree leftChild;
-    private AVLTree rightChild;
+    private AVLTree<T> parent;
+    private AVLTree<T> leftChild;
+    private AVLTree<T> rightChild;
     private int height;
 
     public AVLTree() {
@@ -27,11 +29,11 @@ public class AVLTree<T  extends Comparable<T>> {
      * 取得根结点
      * @return
      */
-    private AVLTree getRoot() {
+    private AVLTree<T> getRoot() {
         if (data == null) {
             return null;
         }
-        AVLTree root = this;
+        AVLTree<T> root = this;
         while (root.parent != null) {
             root = root.parent;
         }
@@ -39,15 +41,15 @@ public class AVLTree<T  extends Comparable<T>> {
     }
 
     // =======getters=============
-    public AVLTree getLeftChild() {
+    public AVLTree<T> getLeftChild() {
         return leftChild;
     }
 
-    public AVLTree getRightChild() {
+    public AVLTree<T> getRightChild() {
         return rightChild;
     }
 
-    public AVLTree getParent() {
+    public AVLTree<T> getParent() {
         return parent;
     }
 
@@ -86,7 +88,7 @@ public class AVLTree<T  extends Comparable<T>> {
         return height;
     }
 
-    private void rootInsert(T t) {
+    private AVLTree<T> rootInsert(T t) {
         int cp = t.compareTo(this.data);
 
         // 比较结果为0，更新元素
@@ -97,14 +99,14 @@ public class AVLTree<T  extends Comparable<T>> {
         // 比当前结点小
         if (cp < 0) {
             if (leftChild == null) {
-                leftChild = new AVLTree(t);
+                leftChild = new AVLTree<T>(t);
                 leftChild.parent = this;
             } else {
                 leftChild.rootInsert(t);
             }
         } else {
             if (rightChild == null) {
-                rightChild = new AVLTree();
+                rightChild = new AVLTree<T>();
                 rightChild.parent = this;
             } else {
                 rightChild.rootInsert(t);
@@ -114,48 +116,53 @@ public class AVLTree<T  extends Comparable<T>> {
         /**
          * 处理插入引起的不平衡
          */
-        process();
+        return process();
     }
 
-    private void process() {
+    private AVLTree<T> process() {
 
         int lh = getLeftHeight();
         int rh = getRightHeight();
 
-        AVLTree root = this;
+        AVLTree<T> root = this;
 
         if (lh - rh == 2) {
             if (leftChild.getLeftHeight() >= leftChild.getRightHeight()) {
                 // LL型 右旋
-                rotateRight(this);
+                root = rotateRight(this);
             } else {
-                rotateRight(leftChild);
-                root = roatetLeft(this);
+                // LR型 左旋+右旋
+                rotateLeft(leftChild);
+                root = rotateRight(this);
             }
         } else if (rh - lh == 2) {
             if (rightChild.getLeftHeight() >= rightChild.getRightHeight()) {
-                root = rotateRight(this);
+                // RR型 左旋
+                rotateLeft(this);
             } else {
-                rotateLeft(rightChild);
-                root = rotateRight(this);
+               // RL型 右旋+左旋
+                rotateRight(rightChild);
+                root = rotateLeft(this);
             }
         }
         // 更新当前根结点的高度
         root.updateHeight();
+
+        return root;
     }
 
-    public void insert(T t) {
+    public AVLTree<T> insert(T t) {
         if (t == null)
-            return;
+            return this;
         // 特殊情形：当前是空结点
         if (data == null) {
             data = t;
             updateHeight();
-            return;
+            return this;
         }
-        AVLTree root = getRoot(); // 根结点
+        AVLTree<T> root = getRoot(); // 根结点
 
-        root.rootInsert(t);
+        return root.rootInsert(t);
     }
 
     /**
@@ -163,11 +170,11 @@ public class AVLTree<T  extends Comparable<T>> {
      * @param tree
      * @return
      */
-    private void rotateRight(AVLTree tree) {
+    private AVLTree<T> rotateRight(AVLTree<T> tree) {
         if (tree == null || tree.leftChild == null) {
-            return;
+            return tree;
         }
-        AVLTree root = tree.leftChild;
+        AVLTree<T> root = tree.leftChild;
         tree.leftChild = root.rightChild;
         if (tree.leftChild != null) {
             tree.leftChild.parent = tree;
@@ -185,14 +192,18 @@ public class AVLTree<T  extends Comparable<T>> {
         tree.updateHeight();
         root.updateHeight();
 
-//        return root;
+        return root;
     }
 
-    private void rotateLeft(AVLTree tree) {
+    /**
+     * RR型 - 左旋
+     * @param tree
+     */
+    private AVLTree<T> rotateLeft(AVLTree<T> tree) {
         if (tree == null || tree.rightChild == null) {
-            return;
+            return tree;
         }
-        AVLTree root = tree.rightChild;
+        AVLTree<T> root = tree.rightChild;
         tree.rightChild = root.leftChild;
         if (tree.rightChild != null) {
             tree.rightChild.parent = tree;
@@ -209,26 +220,16 @@ public class AVLTree<T  extends Comparable<T>> {
         }
         tree.updateHeight();
         root.updateHeight();
+
+        return root;
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder("当前根结点信息：");
+    public static  void inOrderTraverse(AVLTree  t) {
 
-        if (this.getParent() != null) {
-            sb.append("parent -> " + this.getParent().getData() + ", ");
-        } else {
-            sb.append("parent -> null, ");
+        if (t != null) {
+            inOrderTraverse(t.leftChild);
+            System.out.println(t.data + " ");
+            inOrderTraverse(t.rightChild);
         }
-        if (this.getLeftChild() != null) {
-            sb.append("leftChild -> " + this.getLeftChild().getData() + ", ");
-        } else {
-            sb.append("leftChild -> null, ");
-        }
-        if (this.getRightChild() != null) {
-            sb.append("rightChild -> " + this.getRightChild().getData() + ", ");
-        } else {
-            sb.append("rightChild -> null, ");
-        }
-        return sb.append("值为:" + this.getData() + " 高度为:" + this.getHeight()).toString();
     }
 }

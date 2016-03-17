@@ -5,15 +5,11 @@ package com.junicorn.jdsa.tree;
  */
 public class AVLTreeTest {
     public static void main(String[] args) {
-        Integer a = 10;
         AVLTree t = new AVLTree();
-        t.insert(a);
-        System.out.println(t);
-        System.out.println("==========");
+        t.insert(10);
+
         t.insert(8);
-        System.out.println(t);
-        System.out.println("==========");
+
         t.insert(5);
-        System.out.println(t);
     }
 }
