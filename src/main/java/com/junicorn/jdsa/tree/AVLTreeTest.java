@@ -1,4 +1,4 @@
-package com.junicorn.jdsa.avl;
+package com.junicorn.jdsa.tree;
 
 /**
  * Created by 哓哓 on 2016/3/16 0016.

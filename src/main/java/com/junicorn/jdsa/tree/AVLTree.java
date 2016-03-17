@@ -1,4 +1,4 @@
-package com.junicorn.jdsa.avl;
+package com.junicorn.jdsa.tree;
 
 /**
  * Created by 哓哓 on 2016/3/16 0016.
@@ -74,7 +74,6 @@ public class AVLTree<T  extends Comparable<T>> {
     }
 
     private int updateHeight() {
-        System.out.println("updateHeight");
         if (data == null) {
             height = -1;
             return  height;
@@ -87,9 +86,8 @@ public class AVLTree<T  extends Comparable<T>> {
         return height;
     }
 
-    private AVLTree rootInsert(T t) {
-        System.out.println("=========data=" + this.data);
-        int cp = t.compareTo(data);
+    private void rootInsert(T t) {
+        int cp = t.compareTo(this.data);
 
         // 比较结果为0，更新元素
         if (cp == 0) {
@@ -98,12 +96,10 @@ public class AVLTree<T  extends Comparable<T>> {
 
         // 比当前结点小
         if (cp < 0) {
-            System.out.println("进去cp < 0");
             if (leftChild == null) {
                 leftChild = new AVLTree(t);
                 leftChild.parent = this;
             } else {
-                System.out.println("左子树不空");
                 leftChild.rootInsert(t);
             }
         } else {
@@ -115,50 +111,51 @@ public class AVLTree<T  extends Comparable<T>> {
             }
         }
 
-        return rootUpdate();
+        /**
+         * 处理插入引起的不平衡
+         */
+        process();
     }
 
-    private AVLTree rootUpdate() {
-        System.out.println("进入rootUpdate");
+    private void process() {
 
-        int rh = getRightHeight();
         int lh = getLeftHeight();
+        int rh = getRightHeight();
 
         AVLTree root = this;
 
-//        if (lh - rh == 2) {
-//            if (leftChild.getLeftHeight() >= leftChild.getRightHeight()) {
-//                // LL型 右旋
-//                root = rotateRight(this);
-//            } else {
-//                rotateRight(leftChild);
-//                root = roatetLeft(this);
-//            }
-//        } else if (rh - lh == 2) {
-//            if (rightChild.getLeftHeight() >= rightChild.getRightHeight()) {
-//                root = rotateRight(this);
-//            } else {
-//                rotateLeft(rightChild);
-//                root = rotateRight(this);
-//            }
-//        }
+        if (lh - rh == 2) {
+            if (leftChild.getLeftHeight() >= leftChild.getRightHeight()) {
+                // LL型 右旋
+                rotateRight(this);
+            } else {
+                rotateRight(leftChild);
+                root = roatetLeft(this);
+            }
+        } else if (rh - lh == 2) {
+            if (rightChild.getLeftHeight() >= rightChild.getRightHeight()) {
+                root = rotateRight(this);
+            } else {
+                rotateLeft(rightChild);
+                root = rotateRight(this);
+            }
+        }
+        // 更新当前根结点的高度
         root.updateHeight();
-
-        return root;
     }
 
-    public AVLTree insert(T t) {
+    public void insert(T t) {
         if (t == null)
-            return this;
+            return;
         // 特殊情形：当前是空结点
         if (data == null) {
             data = t;
             updateHeight();
-            return this;
+            return;
         }
         AVLTree root = getRoot(); // 根结点
 
-        return root.rootInsert(t);
+        root.rootInsert(t);
     }
 
     /**
@@ -166,9 +163,9 @@ public class AVLTree<T  extends Comparable<T>> {
      * @param tree
      * @return
      */
-    private AVLTree rotateRight(AVLTree tree) {
+    private void rotateRight(AVLTree tree) {
         if (tree == null || tree.leftChild == null) {
-            return tree;
+            return;
         }
         AVLTree root = tree.leftChild;
         tree.leftChild = root.rightChild;
@@ -188,11 +185,34 @@ public class AVLTree<T  extends Comparable<T>> {
         tree.updateHeight();
         root.updateHeight();
 
-        return root;
+//        return root;
+    }
+
+    private void rotateLeft(AVLTree tree) {
+        if (tree == null || tree.rightChild == null) {
+            return;
+        }
+        AVLTree root = tree.rightChild;
+        tree.rightChild = root.leftChild;
+        if (tree.rightChild != null) {
+            tree.rightChild.parent = tree;
+        }
+        root.leftChild = tree;
+        root.parent = tree.parent;
+        tree.parent = root;
+        if (root.parent != null) {
+            if (root.parent.leftChild == tree) {
+                root.parent.leftChild = root;
+            } else {
+                root.parent.rightChild = root;
+            }
+        }
+        tree.updateHeight();
+        root.updateHeight();
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder("当前结点信息：");
+        StringBuilder sb = new StringBuilder("当前根结点信息：");
 
         if (this.getParent() != null) {
             sb.append("parent -> " + this.getParent().getData() + ", ");
