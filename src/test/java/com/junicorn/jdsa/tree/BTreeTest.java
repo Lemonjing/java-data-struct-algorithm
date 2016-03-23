@@ -14,9 +14,19 @@ public class BTreeTest {
             t.buildBTree(t.root, a[i]);
         }
 
+        System.out.println("前序遍历：");
         t.preOrder(t.root);
+        System.out.println("前序非递归遍历：");
+        t.preOrder2(t.root);
+        System.out.println("中序遍历：");
         t.inOrder(t.root);
+        System.out.println("中序非递归遍历：");
+        t.inOrder2(t.root);
+        System.out.println("后序遍历：");
         t.postOrder(t.root);
+        System.out.println("后序非遍历：");
+        t.postOrder(t.root);
+        System.out.println("层序遍历：");
         t.levelOrder(t.root);
     }
 }
